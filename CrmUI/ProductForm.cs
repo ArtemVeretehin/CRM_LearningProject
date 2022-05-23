@@ -23,7 +23,9 @@ namespace CrmUI
         {
             product = new Product()
             {
-                Name = textBox1.Text
+                Name = textBox1.Text,
+                Price = numericUpDown1.Value,
+                Count = (int)numericUpDown2.Value
             };
         }
 
