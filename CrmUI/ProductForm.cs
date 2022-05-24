@@ -19,14 +19,26 @@ namespace CrmUI
             InitializeComponent();
         }
 
+        public ProductForm(Product product) : this()
+        {
+            this.product = product;
+            textBox1.Text = product.Name;
+            numericUpDown1.Value = product.Price;
+            numericUpDown2.Value = product.Count;
+        }
+
         private void button1_Click(object sender, EventArgs e)
         {
-            product = new Product()
+            if (product == null)
             {
-                Name = textBox1.Text,
-                Price = numericUpDown1.Value,
-                Count = (int)numericUpDown2.Value
-            };
+                product = new Product() {Name = textBox1.Text, Price = numericUpDown1.Value, Count = (int)numericUpDown2.Value };
+            }
+            else
+            {
+                product.Name = textBox1.Text;
+                product.Price = numericUpDown1.Value;
+                product.Count = (int)numericUpDown2.Value;
+            }
         }
 
         private void button2_Click(object sender, EventArgs e)

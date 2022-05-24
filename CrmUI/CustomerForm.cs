@@ -13,11 +13,17 @@ namespace CrmUI
 {
     public partial class CustomerForm : Form
     {
-        public Customer Customer { get; set; }
+        public Customer customer { get; set; }
 
         public CustomerForm()
         {
             InitializeComponent();
+        }
+
+        public CustomerForm(Customer customer): this()
+        {
+            this.customer = customer;
+            textBox1.Text = this.customer.Name;
         }
 
         private void CustomerForm_Load(object sender, EventArgs e)
@@ -27,10 +33,14 @@ namespace CrmUI
 
         private void button1_Click(object sender, EventArgs e)
         {
-            Customer = new Customer
+            if (customer == null)
+            { 
+                customer = new Customer { Name = textBox1.Text };
+            }
+            else
             {
-                Name = textBox1.Text
-            };
+                customer.Name = textBox1.Text;
+            }
             Close();
         }
 

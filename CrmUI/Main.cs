@@ -22,35 +22,37 @@ namespace CrmUI
 
         private void productToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            var catalogProduct = new Catalog<Product>(db.Products);
+            var catalogProduct = new Catalog<Product>(db.Products,db);
             catalogProduct.Show();
         }
 
         private void sellerToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            var catalogSeller = new Catalog<Seller>(db.Sellers);
+            var catalogSeller = new Catalog<Seller>(db.Sellers,db);
             catalogSeller.Show();
         }
 
         private void customerToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            var catalogCustomer = new Catalog<Customer>(db.Customers);
+            var catalogCustomer = new Catalog<Customer>(db.Customers, db);
             catalogCustomer.Show();
         }
 
         private void checkToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            var catalogCheck = new Catalog<Check>(db.Checks);
+            var catalogCheck = new Catalog<Check>(db.Checks, db);
             catalogCheck.Show();
         }
 
         private void customerAddToolStripMenuItem2_Click(object sender, EventArgs e)
         {
             var form = new CustomerForm();
+            //label1.Text = "Test";
             if (form.ShowDialog() == DialogResult.OK)
             {
-                db.Customers.Add(form.Customer);
+                db.Customers.Add(form.customer);
                 db.SaveChanges();
+                //label1.Text = db.Customers.ToList()[0].Name;
             }
         }
 
@@ -60,7 +62,8 @@ namespace CrmUI
             if (form.ShowDialog() == DialogResult.OK)
             {
                 db.Sellers.Add(form.seller);
-            }
+                db.SaveChanges();
+            }        
         }
 
         private void productAddToolStripMenuItem_Click(object sender, EventArgs e)
@@ -69,6 +72,7 @@ namespace CrmUI
             if (form.ShowDialog() == DialogResult.OK)
             {
                 db.Products.Add(form.product);
+                db.SaveChanges();
             }
         }
     }
