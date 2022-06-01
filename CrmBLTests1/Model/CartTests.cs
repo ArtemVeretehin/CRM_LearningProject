@@ -28,26 +28,13 @@ namespace CrmBL.Model.Tests
             cart.Add(product2);
 
             var cartResult = cart.GetAll();
+
             //assert - сравнение того что ожидаем и того что получили по факту
             Assert.AreEqual(expectedResult.Count, cart.GetAll().Count);
             for(int i = 0; i < expectedResult.Count;i++)
             {
                 Assert.AreEqual(expectedResult[i], cartResult[i]);
             }
-            //Assert.Fail();
         }
-
-        /*
-        [TestMethod()]
-        public void AddTest()
-        {
-            Assert.Fail();
-        }
-
-        [TestMethod()]
-        public void GetEnumeratorTest()
-        {
-            Assert.Fail();
-        }*/
     }
 }
