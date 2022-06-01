@@ -26,7 +26,7 @@ namespace CrmBL.Model
             }
             
         }
-
+        
         public IEnumerator GetEnumerator()
         {
             foreach (var product in Products.Keys)

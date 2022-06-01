@@ -25,7 +25,8 @@ namespace CrmBL.Model
         public override bool Equals(object obj)
         {
             Product product = obj as Product;
-            return this.ProductID == product.ProductID;
+            return this.Name == product.Name;
+            //return this.ProductID == product.ProductID; //- неверное сравнение (ProductId генерится в базу автоматически и мы не задаем его, поэтому у всех объектов Product это свойство равно 0)
         }
 
     }
