@@ -12,13 +12,27 @@ namespace CrmBL.Model
     public class CashDesk
     {
         CrmContext db = new CrmContext();
+        //Номер кассы (уникальный идентификатор)
         public int Number { get; set; }
+
+        //Продавец
         public Seller Seller { get; set; }
 
+        //Очередь корзин
         public Queue<Cart> Queue { get; set; }
+
+        //Максимальный размер очереди
         public int MaxQueueLenght { get; set; }
+
+        //Количество клиентов, ушедших из-за переполнения очереди
         public int ExitCustomer { get; set; }
+
+        //Флаг-признак виртуальности
         public bool IsModel { get; set; }
+
+        //Количество корзин в очереди
+        public int Count => Queue.Count;
+
         public CashDesk(int number, Seller seller)
         {
             Number = number;
@@ -28,6 +42,7 @@ namespace CrmBL.Model
             MaxQueueLenght = 10;
         }
 
+        //Функция установки корзины в очередь
         public void Enqueue(Cart cart)
         {
             if (Queue.Count <= MaxQueueLenght)
@@ -40,12 +55,16 @@ namespace CrmBL.Model
             }
         }
 
+        //Функция реализующая логику продажи и формирования соответствующей транзакции
         public decimal Dequeue()
         {
             decimal sum = 0;
             var card = Queue.Dequeue();
+
+            //Если в очереди есть корзины с товаром
             if (card != null)
             {
+                //Формирование чека
                 var check = new Check()
                 {
                     SellerId = Seller.SellerID,
@@ -55,6 +74,7 @@ namespace CrmBL.Model
                     Created = DateTime.Now
                 };
 
+                //Если продажа в реальном времени - чек сохраняется в базе; Если продажа виртуальная, то в чек добавляется CheckId = 0
                 if (!IsModel)
                 {
                     db.Checks.Add(check);
@@ -67,8 +87,10 @@ namespace CrmBL.Model
 
                 var Sells = new List<Sell>();
 
+                //Перебор продуктов в текущей корзине
                 foreach (Product product in card)
                 {
+                    //Если продукт присутствует на складе - формируется информация по продаже, заносится в БД (если необходимо); определяется общая цена продуктов в корзине; актуализируется количество продукта на складе
                     if (product.Count > 0)
                     {
                         var sell = new Sell()
@@ -89,6 +111,7 @@ namespace CrmBL.Model
                         product.Count--;
                     }
                 }
+
                 if (!IsModel)
                 {
                     db.SaveChanges();

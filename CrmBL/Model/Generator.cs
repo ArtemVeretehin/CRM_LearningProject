@@ -10,13 +10,19 @@ namespace CrmBL.Model
     public class Generator
     {
         Random rnd = new Random();
-        //public List<Cart> Carts { get; set; }
-        //public List<Check> Checks { get; set; }
-        //public List<CashDesk> CashDesks { get; set; }   
+
         public List<Customer> Customers { get; set; }
         public List<Product> Products { get; set; }
         public List<Seller> Sellers { get; set; }
 
+        public Generator()
+        {
+            Customers = new List<Customer>();
+            Products = new List<Product>();
+            Sellers = new List<Seller>();
+        }
+
+        //Функция генерации списка рандомных клиентов (Customer)
         public List<Customer> GetNewCustomers(int count)
         {
             var result = new List<Customer>();
@@ -34,6 +40,7 @@ namespace CrmBL.Model
             return result;
         }
 
+        //Функция генерации списка рандомных продавцов (Seller)
         public List<Seller> GetNewSellers(int count)
         {
             var result = new List<Seller>();
@@ -51,6 +58,7 @@ namespace CrmBL.Model
             return result;
         }
 
+        //Функция генерации списка рандомных продуктов (Product)
         public List<Product> GetNewProducts(int count)
         {
             var result = new List<Product>();
@@ -66,6 +74,18 @@ namespace CrmBL.Model
                 };
                 Products.Add(product);
                 result.Add(product);
+            }
+            return result;
+        }
+
+        //Функция извлечения рандомного количества продуктов (в диапазоне [min;max] из сгенерированного списка продуктов)
+        public List<Product> GetRandomProducts(int min, int max)
+        {
+            var result = new List<Product>();
+            var count = rnd.Next(min, max);
+            for (int i = 0; i < count; i++)
+            {
+                result.Add(Products[rnd.Next(Products.Count - 1)]);
             }
             return result;
         }
