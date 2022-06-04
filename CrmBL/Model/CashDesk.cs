@@ -33,6 +33,22 @@ namespace CrmBL.Model
         //Количество корзин в очереди
         public int Count => Queue.Count;
 
+        public event EventHandler<Check> CheckClosed;
+
+        private delegate void SellEvent_Handler(Check check);
+        private SellEvent_Handler notify;
+        private event SellEvent_Handler Notify
+        {
+            add
+            {
+                notify += value;
+            }
+            remove
+            {
+                notify -= value;
+            }
+        }
+
         public CashDesk(int number, Seller seller)
         {
             Number = number;
@@ -77,7 +93,10 @@ namespace CrmBL.Model
                 //Если продажа в реальном времени - чек сохраняется в базе; Если продажа виртуальная, то в чек добавляется CheckId = 0
                 if (!IsModel)
                 {
-                    db.Checks.Add(check);
+                    Notify += (Check Check) => db.Checks.Add(Check);
+                    notify?.Invoke(check);
+                    
+                    //db.Checks.Add(check);
 
                 }
                 else
@@ -86,7 +105,7 @@ namespace CrmBL.Model
                 }
 
                 var Sells = new List<Sell>();
-
+                
                 //Перебор продуктов в текущей корзине
                 foreach (Product product in card)
                 {
@@ -112,12 +131,21 @@ namespace CrmBL.Model
                     }
                 }
 
+                check.Price = sum;
+
                 if (!IsModel)
                 {
                     db.SaveChanges();
                 }
+
+                CheckClosed?.Invoke(this, check);
             }
             return sum;
+        }
+
+        public override string ToString()
+        {
+            return $"Касса №{Number}";
         }
     }
 }

@@ -9,7 +9,6 @@ namespace CrmBL.Model
     public class ShopComputerModel
     {
         Generator Generator = new Generator();
-
         public List<CashDesk> CashDesks { get; set; }
         public List<Cart> Carts { get; set; }
         public List<Check> Checks { get; set; }
@@ -61,27 +60,18 @@ namespace CrmBL.Model
                     cart.Add(prod);
                 }
 
-                carts.Enqueue(cart);
-                
+                carts.Enqueue(cart);   
             }
 
-            
 
             //Выбираем кассу.Ставим корзину в очередь на выбранной кассе. Выбранную корзину удаляем из списка
             while (carts.Count > 0)
             {
                 //Выбор кассы с наименьшим количеством корзин в очереди
                 var cash = CashDesks.FirstOrDefault(x => x.Count == CashDesks.Min(c => c.Count));
-
                 cash.Enqueue(carts.Dequeue());
-                //carts.Remove(cart);
             }
-            /*
-            foreach(var cd in CashDesks)
-            {
-                cd.Dequeue();
-            }*/
-            //int count = CashDesks.Where(c => c.Count > 0).Count();
+
             while (CashDesks.Where(c=>c.Count > 0).Count() > 0)
             {
                 var cash = CashDesks.FirstOrDefault(x => x.Count > 0);
