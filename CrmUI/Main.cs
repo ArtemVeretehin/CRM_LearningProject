@@ -75,5 +75,11 @@ namespace CrmUI
                 db.SaveChanges();
             }
         }
+
+        private void ModelToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            var ModelForm = new ModelForm();
+            ModelForm.Show();
+        }
     }
 }
