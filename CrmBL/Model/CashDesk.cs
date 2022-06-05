@@ -34,6 +34,8 @@ namespace CrmBL.Model
         public int Count => Queue.Count;
 
         public event EventHandler<Check> CheckClosed;
+        public event Action<CashDesk> CardQueueUpdated;
+        public event Action<CashDesk> CustomerGone;
 
         private delegate void SellEvent_Handler(Check check);
         private SellEvent_Handler notify;
@@ -61,13 +63,15 @@ namespace CrmBL.Model
         //Функция установки корзины в очередь
         public void Enqueue(Cart cart)
         {
-            if (Queue.Count <= MaxQueueLenght)
+            if (Queue.Count < MaxQueueLenght)
             {
                 Queue.Enqueue(cart);
+                CardQueueUpdated?.Invoke(this);
             }
             else
             {
                 ExitCustomer++;
+                CustomerGone?.Invoke(this);
             }
         }
 
