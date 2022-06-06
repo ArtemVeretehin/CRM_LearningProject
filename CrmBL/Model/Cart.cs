@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq;
 using System.Collections;
 using System.Collections.Generic;
 
@@ -9,6 +10,8 @@ namespace CrmBL.Model
     {
         public Customer Customer { get; set; }
         public Dictionary<Product,int> Products { get; set; }
+        public decimal Price => GetAll().Sum(x => x.Price);
+
         public Cart(Customer customer)
         {
             Customer = customer;
@@ -37,7 +40,6 @@ namespace CrmBL.Model
                 }
             }
         }
-
         public List<Product> GetAll()
         {
             var result = new List<Product>();

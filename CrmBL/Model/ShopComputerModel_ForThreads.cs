@@ -17,7 +17,7 @@ namespace CrmBL.Model
         public List<Check> Checks { get; set; }
         public List<Sell> Sell { get; set; }
         public Queue<Seller> Sellers { get; set; }
-        public int CustomerSpeed { get; set; } = 1000;
+        public int CustomerSpeed = 1000;
         public int CashDeskSpeed { get; set; } = 1000;
         
 
@@ -51,17 +51,17 @@ namespace CrmBL.Model
             isWorking = true;
 
             //Создание задачи для генерации корзин и распределения корзин по кассам
-            Task.Run(() => CreateCarts(10, CustomerSpeed));
+            Task.Run(() => CreateCarts(10, ref CustomerSpeed));
             
             //Создание задач на обработку покупок в кассах
-            var cashDeskTasks = CashDesks.Select(c => new Task(() => CashDeskWork(c, CashDeskSpeed)));
+            var cashDeskTasks = CashDesks.Select(c => new Task(() => CashDeskWork(c)));
 
             //Запуск задач
             foreach (var task in cashDeskTasks) task.Start();
         }
 
         //Функция генерации корзин (создание клиента, создание на основе него корзины, добавление продуктов в корзину) и распределение созданных корзин по кассам.
-        private void CreateCarts(int customersCount, int sleep)
+        private void CreateCarts(int customersCount, ref int sleep)
         {
             while (isWorking)
             {
@@ -87,13 +87,15 @@ namespace CrmBL.Model
                 }
                 
                 Thread.Sleep(sleep);
-            }
+           }
         }
 
-        private void CashDeskWork(CashDesk cashDesk, int sleep)
+        private void CashDeskWork(CashDesk cashDesk)
         {
+            int sleep;
             while (isWorking)
             {
+                sleep = CashDeskSpeed;
                 if (cashDesk.Count > 0)
                 {
                     cashDesk.Dequeue();

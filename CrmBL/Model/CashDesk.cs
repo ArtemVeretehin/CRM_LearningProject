@@ -97,10 +97,11 @@ namespace CrmBL.Model
                 //Если продажа в реальном времени - чек сохраняется в базе; Если продажа виртуальная, то в чек добавляется CheckId = 0
                 if (!IsModel)
                 {
-                    Notify += (Check Check) => db.Checks.Add(Check);
-                    notify?.Invoke(check);
+                    //Redact!
+                    //Notify += (Check Check) => db.Checks.Add(Check);
+                    //notify?.Invoke(check);
                     
-                    //db.Checks.Add(check);
+                    db.Checks.Add(check);
 
                 }
                 else
