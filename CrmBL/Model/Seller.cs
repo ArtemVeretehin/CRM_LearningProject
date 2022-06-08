@@ -10,6 +10,7 @@ namespace CrmBL.Model
     {
         public int SellerID { get; set; }
         public string Name { get; set; }
+        public bool Free { get; set; }
         public virtual ICollection<Check> Checks { get; set; }
         public override string ToString()
         {

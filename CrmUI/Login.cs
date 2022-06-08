@@ -13,9 +13,11 @@ namespace CrmUI
 {
     public partial class Login : Form
     {
+        CrmContext db;
         public Customer Customer { get; set; }
-        public Login()
+        public Login(CrmContext db)
         {
+            this.db = db;
             InitializeComponent();
         }
 
@@ -25,7 +27,18 @@ namespace CrmUI
             {
                 Name = textBox1.Text
             };
-            this.DialogResult = DialogResult.OK;
+            var tempCustomer = db.Customers.FirstOrDefault(c => c.Name == Customer.Name);
+            if (tempCustomer != null)
+            { 
+                Customer = tempCustomer;
+                this.DialogResult = DialogResult.OK;
+            }
+            else
+            { 
+                LoginFailed loginFailed = new LoginFailed();
+                loginFailed.ShowDialog();
+                if (loginFailed.DialogResult == DialogResult.OK) loginFailed.Close();
+            }
         }
 
     }

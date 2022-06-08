@@ -16,5 +16,12 @@ namespace CrmBL.Model
         {
             return Name;
         }
+
+        public override bool Equals(object obj)
+        {
+            if (obj is Customer customer)
+                return Name == customer.Name;
+            else return false;
+        }
     }
 }

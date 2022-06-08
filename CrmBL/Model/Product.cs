@@ -16,7 +16,7 @@ namespace CrmBL.Model
 
         public override string ToString()
         {
-            return $"Товар {Name} - Цена {Price}";
+            return $"Товар {Name} - Цена {Price}. Количество единиц на складе: {Count}";
         }
         public override int GetHashCode()
         {

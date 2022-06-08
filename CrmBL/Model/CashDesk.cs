@@ -88,9 +88,9 @@ namespace CrmBL.Model
                 var check = new Check()
                 {
                     SellerId = Seller.SellerID,
-                    Seller = Seller,
+                    SellerName = Seller.Name,
                     CustomerId = card.Customer.CustomerId,
-                    Customer = card.Customer,
+                    CustomerName = card.Customer.Name,
                     Created = DateTime.Now
                 };
 
@@ -120,6 +120,7 @@ namespace CrmBL.Model
                         var sell = new Sell()
                         {
                             ProductId = product.ProductID,
+                            ProductName = product.Name,
                             //Product = product,
                             CheckId = check.CheckId,
                             //Check = check
@@ -133,6 +134,8 @@ namespace CrmBL.Model
                         }
                         sum += product.Price;
                         product.Count--;
+                        var db_product = db.Products.FirstOrDefault(p => p.Name == product.Name);
+                        db_product.Count = product.Count;
                     }
                 }
 

@@ -30,15 +30,16 @@ namespace CrmUI
             };
         }
 
+        //Блок кода создания и вызова формы каталога для различных сущностей
         private void productToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            var catalogProduct = new Catalog<Product>(db.Products,db);
+            var catalogProduct = new Catalog<Product>(db.Products, db);
             catalogProduct.Show();
         }
 
         private void sellerToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            var catalogSeller = new Catalog<Seller>(db.Sellers,db);
+            var catalogSeller = new Catalog<Seller>(db.Sellers, db);
             catalogSeller.Show();
         }
 
@@ -53,16 +54,16 @@ namespace CrmUI
             var catalogCheck = new Catalog<Check>(db.Checks, db);
             catalogCheck.Show();
         }
+        //Конец блока
 
+        //Блок кода для вызова форм добавления данных в каталоге
         private void customerAddToolStripMenuItem2_Click(object sender, EventArgs e)
         {
             var form = new CustomerForm();
-            //label1.Text = "Test";
             if (form.ShowDialog() == DialogResult.OK)
             {
                 db.Customers.Add(form.customer);
                 db.SaveChanges();
-                //label1.Text = db.Customers.ToList()[0].Name;
             }
         }
 
@@ -73,7 +74,7 @@ namespace CrmUI
             {
                 db.Sellers.Add(form.seller);
                 db.SaveChanges();
-            }        
+            }
         }
 
         private void productAddToolStripMenuItem_Click(object sender, EventArgs e)
@@ -85,13 +86,16 @@ namespace CrmUI
                 db.SaveChanges();
             }
         }
+        //Конец блока
 
+        //Вызов формы управления компьютерной моделью
         private void ModelToolStripMenuItem_Click(object sender, EventArgs e)
         {
             var ModelForm = new ModelForm();
             ModelForm.Show();
         }
 
+        //Вывод списка продуктов из БД на главную форму
         private void Main_Load(object sender, EventArgs e)
         {
             Task Products_Load = Task.Run(() =>
@@ -101,60 +105,127 @@ namespace CrmUI
             });
         }
 
+        //Добавление продуктов в корзину покупателя
         private void listBox1_DoubleClick(object sender, EventArgs e)
         {
             if (listBox1.SelectedItem is Product product)
-            { 
-                listBox2.Items.Add(product);
-                cart.Add(product);
-                label3.Text = System.Convert.ToString(cart.Price);
-            }
-        }
-
-        private void linkLabel1_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e)
-        {
-            Login login = new Login();
-            if (login.ShowDialog() == DialogResult.OK)
             {
-                //if (db.Customers.Where(c => c.Name == login.Customer.Name).Count() > 0)
-                
-                var tempCustomer = db.Customers.FirstOrDefault(c => c.Name.Equals(login.Customer.Name));
-                if (tempCustomer != null)
-                { 
-                    customer = tempCustomer;
-                    cart.Customer = customer;
-                    linkLabel1.Text = $"Здравствуй, {tempCustomer.Name}";
+                //Если количество продукта больше 0 (смотрим по форме - считаем что в момент формирования заказа данные по ней актуальны)
+                if (product.Count > 0)
+                {
+                    //Добавляем продукты в список заказа, корзину, обновляем общую цену заказа
+                    listBox2.Items.Add(product);
+                    cart.Add(product);
+                    label3.Text = System.Convert.ToString(cart.Price);
+
+                    //Обновляем количества продукта в списке продуктов
+                    int selectedIndex = listBox1.Items.IndexOf(product);
+                    listBox1.Items.RemoveAt(selectedIndex);
+                    Product productToList = new Product()
+                    {
+                        ProductID = product.ProductID,
+                        Name = product.Name,
+                        Count = product.Count,
+                        Price = product.Price
+                    };
+                    productToList.Count--;
+                    listBox1.Items.Insert(selectedIndex, productToList);
                 }
                 else
                 {
-                    //db.Customers.Add(login.Customer);
-                    //db.SaveChanges();
-                    //customer = login.Customer;
-                    LoginFailed loginfailedform = new LoginFailed();
-                    if (loginfailedform.ShowDialog() == DialogResult.OK)
-                    {
-                        loginfailedform.Close();
-                    }
+                    MessageBox.Show("Нет такого количества выбранного продукта", "Ошибка корзины", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 }
             }
         }
 
+        private void listBox2_DoubleClick(object sender, EventArgs e)
+        {
+            if (listBox2.SelectedItem is Product selectedProduct)
+            {
+                //Если в списке продуктов есть продукт который удаляется из корзины   
+                if (listBox1.Items.Contains(listBox2.SelectedItem))
+                {
+                    //Определяем индекс этого продукта в списке продуктов
+                    int indexListBox1 = listBox1.Items.IndexOf(listBox2.SelectedItem);
+
+                    //Получаем продукт из списка продуктов
+                    var product = listBox1.Items[indexListBox1] as Product;
+                    //Удаляем продукт из корзины и обновляем общую стоимость заказа
+                    cart.Remove(product);
+                    label3.Text = System.Convert.ToString(cart.Price);
+
+                    //Изменяем данные в списке товаров
+                    listBox1.Items.RemoveAt(indexListBox1);
+                    product.Count++;
+                    listBox1.Items.Insert(indexListBox1, product);
+                    //Удаляем продукт из списка заказанного
+                    listBox2.Items.Remove(selectedProduct);
+                }
+            }
+        }
+
+        //Авторизация покупателя
+        private void linkLabel1_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e)
+        {
+            Login login = new Login(db);
+            if (login.ShowDialog() == DialogResult.OK)
+            {
+                customer = login.Customer;
+                cart.Customer = customer;
+                linkLabel1.Text = $"Здравствуй, {cart.Customer}";
+            }
+        }
+
+        //Проведение транзакции
         private void button1_Click(object sender, EventArgs e)
         {
-            db.Dispose();
-            if(customer !=null)
+            //Если произвели авторизацию, то производим транзакцию и сбрасываем ненужные данные
+            if ((customer != null) && (cart.Products.Count > 0))
             {
+                //Удаляем контекст
+                db.Dispose();
+                //Производим транзакцию
                 cashDesk.Enqueue(cart);
                 cashDesk.Dequeue();
-                listBox2.Items.Clear();
-                cart = new Cart(customer);
 
-                MessageBox.Show("Покупка выполнена успешно","Успех",MessageBoxButtons.OK,MessageBoxIcon.Information);
+                //Производим сброс данных и обновление списка продуктов
+                db = new CrmContext();
+                cart = new Cart(customer);
+                listBox1.Items.Clear();
+                listBox1.Items.AddRange(db.Products.ToArray());
+                label3.Text = "0";
+                listBox2.Items.Clear();
+                
+
+                MessageBox.Show("Покупка выполнена успешно", "Успех", MessageBoxButtons.OK, MessageBoxIcon.Information);
             }
             else
             {
-                MessageBox.Show("Требуется авторизация!");
+                if (customer == null) MessageBox.Show("Требуется авторизация!");
+                else if (cart.Products.Count == 0) MessageBox.Show("Добавьте продукты в корзину!");
             }
+        }
+
+        //Разлогинивание пользователя
+        private void button2_Click(object sender, EventArgs e)
+        {
+            if (customer != null)
+            {
+                customer = null;
+                linkLabel1.Text = $"Здравствуй, гость";
+            }
+        }
+
+        private void button3_Click(object sender, EventArgs e)
+        {
+            db.Dispose();
+            db = new CrmContext();
+            //var prods = db.Products.Select(p => p);
+            //var entityEntry = db.Entry(prods);
+            //db.Entry(db.Products).Reload();
+            listBox1.Items.Clear();
+            Product[] products = db.Products.ToArray();
+            listBox1.Items.AddRange(products);
         }
     }
 }

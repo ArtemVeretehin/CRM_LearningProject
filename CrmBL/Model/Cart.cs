@@ -10,7 +10,18 @@ namespace CrmBL.Model
     {
         public Customer Customer { get; set; }
         public Dictionary<Product,int> Products { get; set; }
-        public decimal Price => GetAll().Sum(x => x.Price);
+        public decimal Price
+        {
+            get
+            {
+                return GetAll().Sum(x => x.Price);
+            }
+            set
+            {
+                Price = value;
+            }
+        }
+
 
         public Cart(Customer customer)
         {
@@ -28,6 +39,15 @@ namespace CrmBL.Model
                 Products.Add(product, 1);
             }
             
+        }
+
+        public void Remove(Product product)
+        {
+            if (Products.TryGetValue(product, out int count))
+            {
+                if (count > 1) Products[product]--;
+                else if (count == 1) Products.Remove(product);
+            }
         }
         
         public IEnumerator GetEnumerator()
